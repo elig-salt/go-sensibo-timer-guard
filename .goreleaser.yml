@@ -1,0 +1,160 @@
+project_name: sensibo-timer-guard
+
+env:
+  - GO111MODULE=on
+  - CGO_ENABLED=0
+
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+builds:
+  - id: linux-arm
+    binary: sensibo-timer-guard-linux-{{ .Arch }}v{{ .Arm }}
+    main: .
+    goos:
+      - linux
+    goarch:
+      - arm
+    goarm:
+      - "6"
+      - "7"
+    no_unique_dist_dir: true
+
+  - id: linux-arm64
+    binary: sensibo-timer-guard-linux-{{ .Arch }}
+    main: .
+    goos:
+      - linux
+    goarch:
+      - arm64
+    no_unique_dist_dir: true
+
+  - id: linux-amd64
+    binary: sensibo-timer-guard-linux-{{ .Arch }}
+    main: .
+    goos:
+      - linux
+    goarch:
+      - amd64
+    no_unique_dist_dir: true
+
+  - id: darwin-amd64
+    binary: sensibo-timer-guard-darwin-{{ .Arch }}
+    main: .
+    goos:
+      - darwin
+    goarch:
+      - amd64
+    no_unique_dist_dir: true
+
+  - id: windows-amd64
+    binary: sensibo-timer-guard-windows-{{ .Arch }}
+    main: .
+    goos:
+      - windows
+    goarch:
+      - amd64
+    ldflags:
+      - "-buildmode=exe"
+    no_unique_dist_dir: true
+
+dockers:
+  # - image_templates: [ "registry.private.com/platform/base/poc/kink:{{ .Tag }}" ]
+  #   dockerfile: Dockerfile.goreleaser
+  #   goos: linux
+  #   goarch: amd64
+  #   build_flag_templates:
+  #     - --label=org.opencontainers.image.title={{ .ProjectName }}
+  #     - --label=org.opencontainers.image.description={{ .ProjectName }}
+  #     - --label=org.opencontainers.image.url=https://github.com/elig-salt/go-sensibo-timer-guard
+  #     - --label=org.opencontainers.image.source=https://github.com/elig-salt/go-sensibo-timer-guard
+  #     - --label=org.opencontainers.image.version={{ .Version }}
+  #     - --label=org.opencontainers.image.created={{ time "2021-12-12T15:04:05Z07:00" }}
+  #     - --label=org.opencontainers.image.revision={{ .FullCommit }}
+  #     - --label=org.opencontainers.image.licenses=MIT
+
+  - image_templates:
+      - "slygon/sensibo-timer-guard:{{ .Version }}-amd64"
+    use: buildx
+    goos: linux
+    goarch: amd64
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--build-arg=BINARY_NAME=sensibo-timer-guard-linux-amd64"
+    
+  - image_templates:
+      - "slygon/sensibo-timer-guard:{{ .Version }}-arm-v6"
+    ids: 
+      - linux-arm
+    use: buildx
+    goos: linux
+    goarch: arm
+    goarm: "6"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm/v6"
+      - "--build-arg=BINARY_NAME=sensibo-timer-guard-linux-armv6"
+
+  - image_templates:
+      - "slygon/sensibo-timer-guard:{{ .Version }}-arm-v7"
+    ids: 
+      - linux-arm
+    use: buildx
+    goos: linux
+    goarch: arm
+    goarm: "7"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm/v7"
+      - "--build-arg=BINARY_NAME=sensibo-timer-guard-linux-armv7"
+
+  - image_templates:
+    - "slygon/sensibo-timer-guard:{{ .Version }}-arm64"
+    ids: 
+      - linux-arm64
+    use: buildx
+    goos: linux
+    goarch: arm64
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--build-arg=BINARY_NAME=sensibo-timer-guard-linux-arm64"
+
+docker_manifests:
+  - name_template: slygon/sensibo-timer-guard:{{ .Version }}
+    image_templates:
+      - slygon/sensibo-timer-guard:{{ .Version }}-amd64
+      - slygon/sensibo-timer-guard:{{ .Version }}-arm-v6
+      - slygon/sensibo-timer-guard:{{ .Version }}-arm-v7
+      - slygon/sensibo-timer-guard:{{ .Version }}-arm64
+
+archives:
+  - format: tar.gz
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: '{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}{{.Arm}}'
+    files:
+      - "README.md"
+
+checksum:
+  name_template: "{{ .ProjectName }}_checksums.txt"
+snapshot:
+  name_template: SNAPSHOT-{{.ShortCommit}}
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - 'README'
+      - Merge pull request
+      - Merge branch
