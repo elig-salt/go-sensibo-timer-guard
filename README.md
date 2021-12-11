@@ -32,3 +32,14 @@ The Docker image is available at:
 ```sh
 docker pull slygon/sensibo-timer-guard
 ```
+
+## Helm
+To install via helm, clone the repo and run:
+```sh
+# This will run every 5 mintues, and set the timer to 30 minutes (to be turned off)
+helm install sensibo-timer-guard charts/sensibo-timer-guard -n default \
+--set apiKey=<MY-VALID-API-KEY> \
+--set cron="*/5 * * * *" \
+--set timerMinutes=30
+
+```
