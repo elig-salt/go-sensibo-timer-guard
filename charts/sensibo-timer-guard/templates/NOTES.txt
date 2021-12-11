@@ -1,0 +1,3 @@
+The Cronjob is set !
+All Sensibo device timer check will be executed per schedule: "{{ .Values.cron }}" - 
+and if one is found to be running without a timer, a timer will be set for {{ .Values.timerMinutes }} minutes :)

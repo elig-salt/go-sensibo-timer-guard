@@ -1,0 +1,7 @@
+# Default values for sensibo-timer-guard.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+timerMinutes: 60
+apiKey: null
+cron: "*/5 * * * *"

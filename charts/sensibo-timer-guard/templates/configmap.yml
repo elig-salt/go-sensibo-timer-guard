@@ -1,0 +1,6 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: sensibo-timer-guard
+data:
+  timerMinutes: "{{ .Values.timerMinutes }}"

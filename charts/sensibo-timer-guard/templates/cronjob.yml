@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sensibo-timer-guard
+spec:
+  schedule: "{{ .Values.cron }}"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: sensibo-timer-guard
+              image: slygon/sensibo-timer-guard:latest
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: SENSIBO_TIMER_SCHEDULE_MINS
+                  valueFrom:
+                    configMapKeyRef:
+                      name: sensibo-timer-guard
+                      key: timerMinutes
+                - name: SENSIBO_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: sensibo-timer-guard
+                      key: apiKey
